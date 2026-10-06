@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin Portal • Roblox Edu</title>
+
+  <!-- Font bertema ramah anak / Roblox -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Baloo+2:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- MathJax untuk pratinjau rumus pada tabel soal admin -->
+  <script>
+    window.MathJax = { tex: { inlineMath: [['\\(', '\\)']], displayMath: [['$$', '$$']] }, svg: { fontCache: 'global' } };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <style>
+    /* ============================= TEMA & VARIABEL ============================= */
+    :root{
+      --biru:#2b6cff;
+      --biru-tua:#1d4ed8;
+      --hijau:#22c55e;
+      --kuning:#ffb11b;
+      --merah:#ef4444;
+      --ungu:#7c3aed;
+      --bg:#eef3ff;
+      --kartu:#ffffff;
+      --teks:#1e293b;
+      --abu:#64748b;
+      --garis:#e2e8f0;
+      --radius:18px;
+      --shadow:0 6px 0 rgba(0,0,0,.08), 0 10px 24px rgba(30,41,59,.10);
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:'Fredoka',system-ui,sans-serif;background:var(--bg);color:var(--teks);
+      min-height:100vh;padding-bottom:70px;
+    }
+    h1,h2,h3{font-family:'Baloo 2',cursive}
+
+    /* ============================= HEADER ============================= */
+    header{
+      background:linear-gradient(120deg,var(--biru),var(--ungu));
+      color:#fff;padding:18px 22px;box-shadow:var(--shadow);
+      display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+    }
+    header .logo{
+      width:46px;height:46px;border-radius:12px;background:#fff;color:var(--biru);
+      display:grid;place-items:center;font-weight:800;font-size:22px;font-family:'Baloo 2';
+      box-shadow:inset 0 -4px 0 rgba(0,0,0,.08);
+    }
+    header h1{font-size:22px;line-height:1}
+    header small{opacity:.85;font-size:13px}
+
+    /* ============================= TAB NAV ============================= */
+    .tabs{display:flex;gap:10px;padding:16px 22px 0;flex-wrap:wrap}
+    .tab-btn{
+      border:none;cursor:pointer;font-family:'Baloo 2';font-weight:700;font-size:15px;
+      background:#fff;color:var(--abu);padding:12px 20px;border-radius:14px 14px 0 0;
+      box-shadow:0 4px 0 rgba(0,0,0,.06);transition:.15s;
+    }
+    .tab-btn.active{background:var(--biru);color:#fff;transform:translateY(-2px)}
+
+    main{padding:18px 22px;max-width:1200px;margin:0 auto}
+    .panel{display:none;animation:fade .25s}
+    .panel.active{display:block}
+    @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+    /* ============================= KARTU & GRID ============================= */
+    .card{background:var(--kartu);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px;margin-bottom:20px}
+    .card h2{font-size:20px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+    .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:20px}
+    .stat{background:#fff;border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);text-align:center}
+    .stat .num{font-family:'Baloo 2';font-weight:800;font-size:30px;line-height:1}
+    .stat .lbl{color:var(--abu);font-size:13px;margin-top:4px}
+    .stat.biru .num{color:var(--biru)} .stat.hijau .num{color:var(--hijau)}
+    .stat.kuning .num{color:var(--kuning)} .stat.merah .num{color:var(--merah)}
+
+    /* ============================= FORM ============================= */
+    .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+    label{display:block;font-size:13px;font-weight:600;color:var(--abu);margin-bottom:5px}
+    input,select,textarea{
+      width:100%;font-family:'Fredoka';font-size:15px;color:var(--teks);
+      border:2px solid var(--garis);border-radius:12px;padding:11px 13px;background:#fbfdff;transition:.15s;
+    }
+    input:focus,select:focus,textarea:focus{outline:none;border-color:var(--biru);background:#fff}
+    textarea{resize:vertical;min-height:70px}
+    .full{grid-column:1/-1}
+    .btn{
+      cursor:pointer;border:none;font-family:'Baloo 2';font-weight:700;font-size:16px;color:#fff;
+      background:var(--biru);padding:13px 26px;border-radius:14px;box-shadow:0 4px 0 var(--biru-tua);transition:.1s;
+    }
+    .btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--biru-tua)}
+    .btn.hijau{background:var(--hijau);box-shadow:0 4px 0 #15803d}
+    .btn.abu{background:#94a3b8;box-shadow:0 4px 0 #64748b}
+    .btn.kecil{font-size:13px;padding:7px 14px;border-radius:10px}
+
+    /* ============================= TABEL ============================= */
+    .tbl-wrap{overflow-x:auto;border-radius:14px;border:1px solid var(--garis)}
+    table{width:100%;border-collapse:collapse;font-size:14px;min-width:560px}
+    th{background:#f1f5ff;text-align:left;padding:11px 12px;font-family:'Baloo 2';color:var(--biru-tua);position:sticky;top:0}
+    td{padding:10px 12px;border-top:1px solid var(--garis);vertical-align:top}
+    tr:nth-child(even) td{background:#fafbff}
+    .pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700}
+    .pill.online{background:#dcfce7;color:#15803d}
+    .pill.offline{background:#f1f5f9;color:#64748b}
+    .pill.tipe{background:#ede9fe;color:#6d28d9}
+    /* Baris pelanggaran berkedip MERAH */
+    tr.cheat td{background:#fee2e2 !important;color:#991b1b;font-weight:600}
+    tr.cheat{animation:blink 1s ease-in-out infinite}
+    @keyframes blink{0%,100%{background:#fee2e2}50%{background:#fecaca}}
+    .cheat-badge{background:var(--merah);color:#fff;padding:2px 9px;border-radius:999px;font-size:11px;font-weight:700}
+
+    /* ============================= TOAST & LIVE DOT ============================= */
+    #toast{
+      position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);
+      background:#1e293b;color:#fff;padding:12px 22px;border-radius:14px;font-weight:600;
+      opacity:0;pointer-events:none;transition:.3s;z-index:60;box-shadow:var(--shadow);max-width:90vw
+    }
+    #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    #toast.err{background:#b91c1c}
+    .live-dot{width:10px;height:10px;border-radius:50%;background:var(--hijau);display:inline-block;
+      box-shadow:0 0 0 0 rgba(34,197,94,.6);animation:pulse 1.4s infinite}
+    @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(34,197,94,.6)}70%{box-shadow:0 0 0 10px rgba(34,197,94,0)}100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}}
+
+    /* ============================= FOOTER / WATERMARK ============================= */
+    footer{
+      position:fixed;bottom:0;left:0;right:0;background:#0f172a;color:#cbd5e1;
+      text-align:center;padding:12px;font-size:13px;letter-spacing:.5px;z-index:50
+    }
+    footer b{color:var(--kuning);font-family:'Baloo 2';letter-spacing:1px}
+    .wm{position:fixed;right:14px;bottom:52px;font-family:'Baloo 2';font-weight:800;font-size:40px;
+      color:rgba(43,108,255,.06);pointer-events:none;user-select:none;z-index:1}
+    .hint{font-size:12px;color:var(--abu);margin-top:6px}
+    .legend{font-size:12px;color:var(--abu);background:#f8faff;border:1px dashed var(--garis);
+      border-radius:12px;padding:10px 14px;margin-top:10px;line-height:1.6}
+    @media(max-width:600px){ header h1{font-size:18px} .wm{display:none} }
+
+    /* ============================= GERBANG LOGIN ADMIN ============================= */
+    #admin-gate{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;
+      background:linear-gradient(160deg,#1e3a8a,#2563eb);padding:18px}
+    .gate-card{background:#fff;border-radius:26px;box-shadow:var(--shadow);padding:34px 30px;width:100%;
+      max-width:380px;text-align:center;border-bottom:8px solid var(--biru-tua)}
+    .gate-card .ic{width:78px;height:78px;margin:0 auto 10px;border-radius:20px;
+      background:linear-gradient(135deg,var(--biru),var(--ungu));display:grid;place-items:center;font-size:40px}
+    .gate-card h1{font-size:24px;color:var(--biru-tua)}
+    .gate-card p{color:var(--abu);font-size:14px;margin-bottom:18px}
+    .gate-card .fld{text-align:left;margin-bottom:13px}
+    .gate-card label{font-size:13px;font-weight:600;color:var(--abu);display:block;margin-bottom:5px}
+    .gate-card input{width:100%;font-family:'Fredoka';font-size:16px;padding:13px;border:3px solid var(--garis);
+      border-radius:13px;background:#fbfdff}
+    .gate-card input:focus{outline:none;border-color:var(--biru)}
+    .gate-err{color:var(--merah-tua);font-weight:600;font-size:14px;min-height:20px;margin-bottom:6px}
+    .hdr-link{margin-left:auto;background:rgba(255,255,255,.18);color:#fff;text-decoration:none;
+      font-family:'Baloo 2';font-weight:700;font-size:14px;padding:8px 16px;border-radius:12px}
+    .hdr-link:hover{background:rgba(255,255,255,.3)}
+  </style>
+</head>
+<body>
+  <!-- URL Web App disuntik dari server (Code.gs). Dipakai untuk link lintas portal. -->
+  <script>const WEB_APP_URL = "<?= webAppUrl ?>";</script>
+
+  <div class="wm">HLMNav</div>
+
+  <!-- ============================= GERBANG LOGIN ADMIN ============================= -->
+  <div id="admin-gate">
+    <div class="gate-card">
+      <div class="ic">🔐</div>
+      <h1>Admin Portal</h1>
+      <p>Masuk untuk mengelola soal, siswa, dan memantau ujian.</p>
+      <div class="gate-err" id="gate-err"></div>
+      <div class="fld">
+        <label>Username Admin</label>
+        <input type="text" id="adm-user" autocomplete="off" placeholder="admin">
+      </div>
+      <div class="fld">
+        <label>Password</label>
+        <input type="password" id="adm-pass" placeholder="••••••" onkeydown="if(event.key==='Enter')doLoginAdmin()">
+      </div>
+      <button class="btn block" id="btn-adm-login" onclick="doLoginAdmin()">🔓 MASUK</button>
+    </div>
+  </div>
+
+  <header>
+    <div class="logo">R</div>
+    <div>
+      <h1>Roblox Edu — Admin Portal</h1>
+      <small>Sistem Asesmen Matematika SMA Berbasis Game</small>
+    </div>
+    <a class="hdr-link" id="link-siswa" href="#" target="_blank" rel="noopener">🧑‍🎓 Buka Portal Siswa ↗</a>
+  </header>
+
+  <!-- ============================= TAB NAVIGATION ============================= -->
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="dash">📡 Live Monitor</button>
+    <button class="tab-btn" data-tab="soal">➕ Input Soal</button>
+    <button class="tab-btn" data-tab="siswa">👤 Input Siswa</button>
+    <button class="tab-btn" data-tab="rekap">🏆 Rekap Nilai</button>
+  </div>
+
+  <main>
+    <!-- ========================= PANEL: LIVE MONITOR ========================= -->
+    <section class="panel active" id="dash">
+      <div class="stat-grid">
+        <div class="stat biru"><div class="num" id="st-online">0</div><div class="lbl">Siswa Online</div></div>
+        <div class="stat hijau"><div class="num" id="st-siswa">0</div><div class="lbl">Total Siswa</div></div>
+        <div class="stat kuning"><div class="num" id="st-soal">0</div><div class="lbl">Total Soal</div></div>
+        <div class="stat merah"><div class="num" id="st-cheat">0</div><div class="lbl">Total Pelanggaran</div></div>
+      </div>
+
+      <div class="card">
+        <h2><span class="live-dot"></span> Aktivitas Real-Time <small style="font-weight:400;color:var(--abu)">(update tiap 4 dtk)</small></h2>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Waktu</th><th>Username</th><th>ID Soal</th><th>Status</th><th>Indikasi</th></tr></thead>
+            <tbody id="live-body"><tr><td colspan="5" style="text-align:center;color:var(--abu)">Memuat data…</td></tr></tbody>
+          </table>
+        </div>
+        <div class="hint">Baris berwarna <b style="color:var(--merah)">merah berkedip</b> = terdeteksi kecurangan.</div>
+      </div>
+    </section>
+
+    <!-- ========================= PANEL: INPUT SOAL ========================= -->
+    <section class="panel" id="soal">
+      <div class="card">
+        <h2>➕ Tambah Soal Baru</h2>
+        <div class="form-grid">
+          <div>
+            <label>Tipe Soal (menentukan mode game)</label>
+            <select id="s-tipe" onchange="updatePetunjukKunci()">
+              <option value="PG_Tunggal">Pilihan Ganda Tunggal → Mode Obby</option>
+              <option value="PG_Kompleks">Pilihan Ganda Kompleks → Mode Scavenger Hunt</option>
+              <option value="Benar_Salah">Benar / Salah → Mode Red Light Green Light</option>
+              <option value="Mencocokkan">Mencocokkan → Mode Task Wiring</option>
+              <option value="Isian_Singkat">Isian Singkat → Mode NPC Quest</option>
+            </select>
+          </div>
+          <div>
+            <label>Bobot Nilai</label>
+            <input type="number" id="s-bobot" value="10" min="1">
+          </div>
+          <div class="full">
+            <label>Pertanyaan (boleh LaTeX: <code>\( … \)</code> inline atau <code>$$ … $$</code> blok)</label>
+            <textarea id="s-teks" placeholder="Contoh: Nilai dari \( \lim_{x \to 0} \frac{\sin x}{x} \) adalah..."></textarea>
+          </div>
+          <div class="full">
+            <label>URL Gambar (opsional)</label>
+            <input type="text" id="s-gambar" placeholder="https://… (kosongkan jika tidak ada)">
+          </div>
+          <div><label>Opsi A</label><input type="text" id="s-a"></div>
+          <div><label>Opsi B</label><input type="text" id="s-b"></div>
+          <div><label>Opsi C</label><input type="text" id="s-c"></div>
+          <div><label>Opsi D</label><input type="text" id="s-d"></div>
+          <div class="full">
+            <label>Kunci Jawaban</label>
+            <input type="text" id="s-kunci" placeholder="">
+            <div class="legend" id="petunjuk-kunci"></div>
+          </div>
+          <div class="full">
+            <button class="btn hijau" onclick="simpanSoal()">💾 Simpan Soal</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>📚 Daftar Soal</h2>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>ID</th><th>Tipe</th><th>Pertanyaan</th><th>Kunci</th><th>Bobot</th></tr></thead>
+            <tbody id="soal-body"><tr><td colspan="5" style="text-align:center;color:var(--abu)">Memuat…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================= PANEL: INPUT SISWA ========================= -->
+    <section class="panel" id="siswa">
+      <div class="card">
+        <h2>👤 Tambah Akun Siswa</h2>
+        <div class="form-grid">
+          <div class="full"><label>Nama Lengkap</label><input type="text" id="sw-nama"></div>
+          <div><label>Username</label><input type="text" id="sw-user"></div>
+          <div><label>Password</label><input type="text" id="sw-pass"></div>
+          <div class="full"><button class="btn hijau" onclick="simpanSiswa()">💾 Simpan Siswa</button></div>
+        </div>
+        <div class="hint">Catatan: password tersimpan sebagai teks biasa di Sheet, jadi gunakan password khusus ujian — jangan password pribadi siswa.</div>
+      </div>
+
+      <div class="card">
+        <h2>🧑‍🎓 Daftar Siswa</h2>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>ID</th><th>Nama</th><th>Username</th><th>Status</th><th>Skor</th></tr></thead>
+            <tbody id="siswa-body"><tr><td colspan="5" style="text-align:center;color:var(--abu)">Memuat…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================= PANEL: REKAP NILAI ========================= -->
+    <section class="panel" id="rekap">
+      <div class="card">
+        <h2>🏆 Papan Peringkat & Rekap</h2>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Nama</th><th>Skor</th><th>Pelanggaran</th><th>Status</th><th>Aksi</th></tr></thead>
+            <tbody id="rekap-body"><tr><td colspan="6" style="text-align:center;color:var(--abu)">Memuat…</td></tr></tbody>
+          </table>
+        </div>
+        <div style="margin-top:14px"><button class="btn abu kecil" onclick="muatRekap()">🔄 Refresh</button></div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast"></div>
+
+  <footer>Dikembangkan dengan ❤️ oleh <b>HLMNav</b> · Roblox Edu Assessment System © 2026</footer>
+
+  <!-- ============================================================================
+       SCRIPT ADMIN
+       Optimasi google.script.run:
+        - Polling live monitor punya 1 request aktif saja (flag inFlight) agar tidak menumpuk.
+        - Tabel soal/siswa hanya dimuat saat tab dibuka, bukan terus-menerus.
+  ============================================================================ -->
+  <script>
+    /* ---------- util toast ---------- */
+    function toast(msg, isErr){
+      const t=document.getElementById('toast');
+      t.textContent=msg; t.className='show'+(isErr?' err':'');
+      clearTimeout(t._tmr); t._tmr=setTimeout(()=>t.className='',2600);
+    }
+    function render(){ if(window.MathJax&&MathJax.typesetPromise) MathJax.typesetPromise(); }
+
+    /* ---------- tab switching ---------- */
+    const tabs=document.querySelectorAll('.tab-btn');
+    tabs.forEach(b=>b.addEventListener('click',()=>{
+      tabs.forEach(x=>x.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+      b.classList.add('active');
+      const id=b.dataset.tab;
+      document.getElementById(id).classList.add('active');
+      // Muat data sesuai tab (lazy load).
+      if(id==='soal') muatSoal();
+      if(id==='siswa') muatSiswa();
+      if(id==='rekap') muatRekap();
+    }));
+
+    /* ====================== LIVE MONITOR (POLLING) ====================== */
+    let inFlight=false;
+    function pollLive(){
+      if(inFlight) return;           // cegah tumpukan request
+      inFlight=true;
+      google.script.run
+        .withSuccessHandler(data=>{ inFlight=false; renderLive(data); })
+        .withFailureHandler(()=>{ inFlight=false; })
+        .getLiveData();
+    }
+    function renderLive(rows){
+      const tb=document.getElementById('live-body');
+      if(!rows||!rows.length){ tb.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--abu)">Belum ada aktivitas.</td></tr>'; return; }
+      tb.innerHTML=rows.map(r=>{
+        const cheat=String(r.Status).toUpperCase().indexOf('PELANGGARAN')>-1;
+        return `<tr class="${cheat?'cheat':''}">
+          <td>${r.Timestamp}</td>
+          <td>${esc(r.Username)}</td>
+          <td>${esc(r.ID_Soal)}</td>
+          <td>${cheat?'<span class="cheat-badge">⚠ PELANGGARAN</span>':esc(r.Status)}</td>
+          <td>${esc(r.Indikasi_Cheat)||'-'}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    /* ====================== STATISTIK ATAS ====================== */
+    function muatStatistik(){
+      google.script.run.withSuccessHandler(list=>{
+        const online=list.filter(s=>String(s.Status_Login).toLowerCase()==='online').length;
+        const cheat=list.reduce((a,s)=>a+(Number(s.Log_Kecurangan)||0),0);
+        document.getElementById('st-online').textContent=online;
+        document.getElementById('st-siswa').textContent=list.length;
+        document.getElementById('st-cheat').textContent=cheat;
+      }).getRekapSiswa();
+      google.script.run.withSuccessHandler(list=>{
+        document.getElementById('st-soal').textContent=list.length;
+      }).getDaftarSoal();
+    }
+
+    /* ====================== INPUT & DAFTAR SOAL ====================== */
+    const PETUNJUK={
+      PG_Tunggal:'Isi satu huruf jawaban benar. Contoh: <b>B</b>',
+      PG_Kompleks:'Isi huruf-huruf benar dipisah koma. Contoh: <b>A,C</b>',
+      Benar_Salah:'Isi persis teks Opsi A atau B. Contoh: <b>Benar</b> (pastikan Opsi A=Benar, Opsi B=Salah)',
+      Mencocokkan:'Kiri=Opsi A &amp; B, Kanan=Opsi C &amp; D. Tulis pasangan benar. Contoh: <b>A-C,B-D</b> (A cocok dengan C, B cocok dengan D)',
+      Isian_Singkat:'Tulis jawaban benar. Beberapa jawaban alternatif dipisah tanda <b>|</b>. Contoh: <b>56|lima puluh enam</b>'
+    };
+    function updatePetunjukKunci(){
+      document.getElementById('petunjuk-kunci').innerHTML='ℹ️ '+PETUNJUK[document.getElementById('s-tipe').value];
+    }
+    function simpanSoal(){
+      const d={
+        tipe:document.getElementById('s-tipe').value,
+        bobot:document.getElementById('s-bobot').value,
+        teks:document.getElementById('s-teks').value.trim(),
+        gambar:document.getElementById('s-gambar').value.trim(),
+        a:document.getElementById('s-a').value, b:document.getElementById('s-b').value,
+        c:document.getElementById('s-c').value, d:document.getElementById('s-d').value,
+        kunci:document.getElementById('s-kunci').value.trim()
+      };
+      if(!d.teks){ toast('Pertanyaan tidak boleh kosong.',true); return; }
+      if(!d.kunci){ toast('Kunci jawaban wajib diisi.',true); return; }
+      google.script.run.withSuccessHandler(res=>{
+        toast(res.pesan);
+        ['s-teks','s-gambar','s-a','s-b','s-c','s-d','s-kunci'].forEach(i=>document.getElementById(i).value='');
+        muatSoal(); muatStatistik();
+      }).withFailureHandler(e=>toast('Gagal: '+e.message,true)).tambahSoal(d);
+    }
+    function muatSoal(){
+      google.script.run.withSuccessHandler(list=>{
+        const tb=document.getElementById('soal-body');
+        if(!list.length){ tb.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--abu)">Belum ada soal.</td></tr>'; return; }
+        tb.innerHTML=list.map(s=>`<tr>
+          <td>${esc(s.ID_Soal)}</td>
+          <td><span class="pill tipe">${esc(s.Tipe_Soal)}</span></td>
+          <td>${s.Pertanyaan_Teks}</td>
+          <td><b>${esc(s.Kunci_Jawaban)}</b></td>
+          <td>${esc(s.Bobot)}</td>
+        </tr>`).join('');
+        render();
+      }).getDaftarSoal();
+    }
+
+    /* ====================== INPUT & DAFTAR SISWA ====================== */
+    function simpanSiswa(){
+      const d={
+        nama:document.getElementById('sw-nama').value.trim(),
+        username:document.getElementById('sw-user').value.trim(),
+        password:document.getElementById('sw-pass').value.trim()
+      };
+      if(!d.nama||!d.username||!d.password){ toast('Semua kolom wajib diisi.',true); return; }
+      google.script.run.withSuccessHandler(res=>{
+        toast(res.pesan, !res.ok);
+        if(res.ok){ ['sw-nama','sw-user','sw-pass'].forEach(i=>document.getElementById(i).value=''); muatSiswa(); muatStatistik(); }
+      }).withFailureHandler(e=>toast('Gagal: '+e.message,true)).tambahSiswa(d);
+    }
+    function muatSiswa(){
+      google.script.run.withSuccessHandler(list=>{
+        const tb=document.getElementById('siswa-body');
+        if(!list.length){ tb.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--abu)">Belum ada siswa.</td></tr>'; return; }
+        tb.innerHTML=list.map(s=>{
+          const on=String(s.Status_Login).toLowerCase()==='online';
+          return `<tr>
+            <td>${esc(s.ID_Siswa)}</td><td>${esc(s.Nama)}</td><td>${esc(s.Username)}</td>
+            <td><span class="pill ${on?'online':'offline'}">${on?'● Online':'○ Offline'}</span></td>
+            <td><b>${esc(s.Skor_Total)}</b></td>
+          </tr>`;
+        }).join('');
+      }).getDaftarSiswa();
+    }
+
+    /* ====================== REKAP NILAI ====================== */
+    function muatRekap(){
+      google.script.run.withSuccessHandler(list=>{
+        list.sort((a,b)=>b.Skor_Total-a.Skor_Total);  // urut skor tertinggi
+        const tb=document.getElementById('rekap-body');
+        if(!list.length){ tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--abu)">Belum ada data.</td></tr>'; return; }
+        const medali=['🥇','🥈','🥉'];
+        tb.innerHTML=list.map((s,i)=>{
+          const on=String(s.Status_Login).toLowerCase()==='online';
+          return `<tr>
+            <td>${medali[i]||(i+1)}</td>
+            <td>${esc(s.Nama)}</td>
+            <td><b>${esc(s.Skor_Total)}</b></td>
+            <td>${Number(s.Log_Kecurangan)>0?`<span class="cheat-badge">${s.Log_Kecurangan}×</span>`:'0'}</td>
+            <td><span class="pill ${on?'online':'offline'}">${on?'● Online':'○ Offline'}</span></td>
+            <td><button class="btn abu kecil" onclick="resetSiswa('${esc(s.Username)}')">Reset</button></td>
+          </tr>`;
+        }).join('');
+      }).getRekapSiswa();
+    }
+    function resetSiswa(u){
+      if(!confirm('Reset sesi (skor & pelanggaran) untuk '+u+'?')) return;
+      google.script.run.withSuccessHandler(res=>{ toast(res.pesan,!res.ok); muatRekap(); muatStatistik(); }).resetSiswa(u);
+    }
+
+    /* ---------- helper escape HTML (hindari karakter aneh di tabel) ---------- */
+    function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+    /* ====================== LOGIN ADMIN (gerbang) ====================== */
+    function doLoginAdmin(){
+      const u=document.getElementById('adm-user').value.trim();
+      const p=document.getElementById('adm-pass').value.trim();
+      const err=document.getElementById('gate-err'); err.textContent='';
+      if(!u||!p){ err.textContent='Isi username & password admin.'; return; }
+      const btn=document.getElementById('btn-adm-login'); btn.disabled=true; btn.textContent='⏳ Memeriksa…';
+
+      google.script.run
+        .withSuccessHandler(res=>{
+          btn.disabled=false; btn.textContent='🔓 MASUK';
+          if(!res.ok){ err.textContent=res.pesan; return; }
+          document.getElementById('admin-gate').style.display='none';  // buka gerbang
+          startAdmin();                                                // baru mulai polling
+        })
+        .withFailureHandler(e=>{ btn.disabled=false; btn.textContent='🔓 MASUK'; err.textContent='Error: '+e.message; })
+        .loginAdmin(u,p);
+    }
+
+    /* ====================== START (dipanggil setelah login) ====================== */
+    function startAdmin(){
+      // Siapkan link ke portal siswa memakai URL Web App yang disuntik server.
+      if(WEB_APP_URL && WEB_APP_URL.indexOf('http')===0){
+        document.getElementById('link-siswa').href = WEB_APP_URL + '?page=siswa';
+      } else {
+        document.getElementById('link-siswa').style.display='none';
+      }
+      updatePetunjukKunci();
+      muatStatistik();
+      pollLive();
+      setInterval(pollLive, 4000);        // polling live monitor tiap 4 detik
+      setInterval(muatStatistik, 8000);   // statistik tiap 8 detik (lebih jarang, lebih ringan)
+    }
+
+    // Fokuskan kolom username admin saat halaman dibuka.
+    window.addEventListener('load', ()=>{ document.getElementById('adm-user').focus(); });
+  </script>
+</body>
+</html>
